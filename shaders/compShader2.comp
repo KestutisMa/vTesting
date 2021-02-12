@@ -1,0 +1,66 @@
+#version 460
+#extension GL_EXT_debug_printf : enable
+//#extension GL_KHR_vulkan_glsl : enabled by default in vuklan // specialization constants and etc.
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_EXT_scalar_block_layout : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2, local_size_z_id = 3 ) in; // _id su spec. constants
+
+layout(constant_id = 4) const int SIZE_X = 1; //specialization constants
+layout(constant_id = 5) const int SIZE_Y = 1;
+layout(constant_id = 6) const int SIZE_Z = 1;
+
+
+#define N SIZE_X*SIZE_Y*SIZE_Z
+
+
+//
+//phisical props
+//
+
+struct ParticleStruct
+{
+    vec3 vel;
+    float m;
+    vec3 a;
+    float empty;
+};
+
+layout(std430, set = 0, binding = 0) buffer buf2
+{
+    ParticleStruct particles[N];
+}; //particles
+
+
+
+const float G = 0.1f;
+const float dt = 0.01f;
+
+void main() {
+
+  /*
+  In order to fit the work into workgroups, some unnecessary threads are launched.
+  We terminate those threads here.
+  */
+    if(gl_GlobalInvocationID.x >= SIZE_X || gl_GlobalInvocationID.y >= SIZE_Y || gl_GlobalInvocationID.z >= SIZE_Z)
+        return;
+
+    ivec3 idx = ivec3(gl_GlobalInvocationID); //TODO: uint?
+//    int adr = idx.z*SIZE_X*SIZE_Y + idx.y*SIZE_X + idx.x;
+//    if (adr >= SIZE_X*SIZE_Y)
+//                    debugPrintfEXT("ab2");
+//    if (adr == 0)
+//    const int a = 1;
+//        particles.vel[0] = vec3(0.1f,0,0);
+//        particles.vel[1] = vec3(0.1f,0,0);
+//    particles.vel[1] = vec3(0.1f,0,0);
+//    particles[adr].vel += particles[adr].a * dt;
+//    particles.vel[adr] += vec3(.1f,0,0) * dt;
+
+//    debugPrintfEXT("ab1111\n");
+
+//    vertices[adr].pos = particles.pos[adr];
+//    vertices[0].pos = vec3(.9f,0.f,0.f);
+//    vertices[1].pos = vec3(.5f,.9f,0.f);
+    //    verticesBuffer.vertices[adr].pos = particles.pos[adr];
+}

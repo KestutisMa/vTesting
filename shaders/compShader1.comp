@@ -1,0 +1,105 @@
+#version 460
+#extension GL_EXT_debug_printf : enable
+//#extension GL_KHR_vulkan_glsl : enabled by default in vuklan // specialization constants and etc.
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_EXT_scalar_block_layout : enable
+#extension GL_ARB_shader_image_load_store : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2, local_size_z_id = 3 ) in; // _id su spec. constants
+
+layout(constant_id = 4) const int SIZE_X = 1; //specialization constants
+layout(constant_id = 5) const int SIZE_Y = 1;
+layout(constant_id = 6) const int SIZE_Z = 1;
+#define N SIZE_X*SIZE_Y*SIZE_Z
+
+
+//
+//phisical props
+//
+
+struct LBMStruct
+{
+    vec3 vel;
+    float m;
+    vec3 a;
+    float empty;
+};
+
+layout(std430, set = 0, binding = 0) buffer buf2
+{
+    LBMStruct elements[N];
+}; //particles
+
+
+//int x = int(gl_GlobalInvocationID.x);
+//int y = int(gl_GlobalInvocationID.y);
+//int adr = y*WIDTH+x;
+
+const float G = 0.01f;
+const float dt = 0.01f;
+
+void main() {
+
+  /*
+  In order to fit the work into workgroups, some unnecessary threads are launched.
+  We terminate those threads here. 
+  */
+    if(gl_GlobalInvocationID.x >= SIZE_X || gl_GlobalInvocationID.y >= SIZE_Y || gl_GlobalInvocationID.z >= SIZE_Z)
+        return;
+//    if (!(gl_GlobalInvocationID.x == 0 && gl_GlobalInvocationID.y == 0 && gl_GlobalInvocationID.z == 0 ))
+//        return;
+//imageStore(resultImage​,ivec2(2,2),vec4(1,1,1,1)​);
+
+    ivec3 idx = ivec3(gl_GlobalInvocationID); //TODO: uint?
+//    int adr = idx.z*SIZE_X*SIZE_Y + idx.y*SIZE_X + idx.x;
+//    if (adr >= SIZE_X*SIZE_Y)
+//                    debugPrintfEXT("ab");
+
+//    particles[adr].a = vec3(0);
+//    for (int z = 0; z < SIZE_Z; z++)
+//        for (int y = 0; y < SIZE_Y; y++)
+//            for (int x = 0; x < SIZE_X; x++)
+//            {
+//                int adr2 = z*SIZE_X*SIZE_Y + y*SIZE_X + x; //second particle
+//                if (adr != adr2) //isskyrus ta pacia dalele
+//                {
+//                    vec3 p1 = vertices[adr].pos;
+//                    vec3 p2 = vertices[adr2].pos;
+//                    float rr = (p1.x - p2.x) * (p1.x - p2.x)
+//                             + (p1.y - p2.y) * (p1.y - p2.y)
+//                             + (p1.z - p2.z) * (p1.z - p2.z);
+//                    if (rr < 0.01) break;
+//                    float a = G*particles[adr2].m / /*sqrt*/(rr); // TODO: is tikro nereikia sqrt?
+//                    particles[adr].a += a * (p2 - p1) / sqrt(rr); // visose 3 koord is karto, p1 p2 yra vec3
+//                }
+//            }
+
+//    vec3 vel = particles[adr].vel_m.xyz;
+//    vertices[adr].pos += vel * dt;
+
+//    vertices[adr].pos += particles[adr].vel * dt;
+
+//    for (int i = 0; i < 64000; i++)
+//        for (int i = 0; i < 16; i++)
+//                    particles[0].a += 1e-16;
+
+
+//  if (gl_GlobalInvocationID.x == 0 && gl_GlobalInvocationID.y == 0) {
+//            data[adr] += 1;
+//            debugPrintfEXT("shader done\n");
+//            debugPrintfEXT("\n");
+//            debugPrintfEXT("m %f\n",particles[adr].m);
+//            debugPrintfEXT("x %f\n",particles[adr].vel.x);
+//            debugPrintfEXT("y %f\n",particles[adr].vel.y);
+//            debugPrintfEXT("z %f\n",particles[adr].vel.z);
+//            debugPrintfEXT("d %d\n",SIZE_Z);
+//            debugPrintfEXT("x %f\n",vertices[adr].pos.x);
+//            debugPrintfEXT("y %f\n",vertices[adr].pos.y);
+//            debugPrintfEXT("z %f\n",vertices[adr].pos.z);
+//  }
+  // data[WIDTH * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x] = gl_GlobalInvocationID.y;//2147483647;//1.0 / 0.0;
+  // data1[WIDTH * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x] = gl_GlobalInvocationID.x;//2147483647;//1.0 / 0.0;
+  // data[1] = 1.1;
+  // data[2] = 2.2;//2147483647;//1.0 / 0.0;
+  // data[3] = 3.3;
+}
